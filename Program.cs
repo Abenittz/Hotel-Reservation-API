@@ -5,6 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<ReservationDBSettings>(builder.Configuration.GetSection("MongoDB"));
 builder.Services.AddSingleton<ReservationServices>();
+builder.Services.AddSingleton<HotelServices>();
+
 
 // Add services to the container.
 

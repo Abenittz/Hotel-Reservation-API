@@ -1,5 +1,6 @@
 
 
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace ReservationApi.Models;
@@ -7,7 +8,9 @@ namespace ReservationApi.Models;
 public class Hotel
 {
     [BsonId]
-    [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+    [BsonRepresentation(BsonType.ObjectId)]
+    [BsonElement("Id")]
+    
     public String? Id { get; set; }
 
     public required String Name { get; set; }

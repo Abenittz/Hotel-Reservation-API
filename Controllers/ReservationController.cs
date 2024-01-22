@@ -4,16 +4,15 @@ using MongoDB.Driver;
 using ReservationApi.Models;
 using ReservationApi.Services;
 
-
-namespace ReservationApi.controllers;
+namespace ReservationApi.ReservationControllers;
 
 [ApiController]
 [Route("[controller]")]
-public class HotelController : ControllerBase
+public class ReservationController : ControllerBase
 {
     private readonly ReservationServices _reservationServices;
 
-    public HotelController(ReservationServices reservationServices)
+    public ReservationController(ReservationServices reservationServices)
     {
         _reservationServices = reservationServices;
     }
@@ -35,7 +34,7 @@ public class HotelController : ControllerBase
         await _reservationServices.CreateAsync(reservation);
         return CreatedAtAction(nameof(GetReservations), new {id = reservation.Id}, reservation);
     }
-
+    
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] RoomReservation reservation, String id)
     {
