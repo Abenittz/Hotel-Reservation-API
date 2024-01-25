@@ -1,4 +1,5 @@
 using System.Runtime.ExceptionServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using ReservationApi.Models;
@@ -6,6 +7,7 @@ using ReservationApi.Services;
 
 namespace ReservationApi.HotelController;
 
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class HotelController : ControllerBase

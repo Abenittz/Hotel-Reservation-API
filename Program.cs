@@ -1,3 +1,6 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using ReservationApi.Models;
 using ReservationApi.Services;
 
@@ -7,6 +10,43 @@ builder.Services.Configure<ReservationDBSettings>(builder.Configuration.GetSecti
 builder.Services.AddSingleton<ReservationServices>();
 builder.Services.AddSingleton<HotelServices>();
 
+
+var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+builder.Configuration.AddConfiguration(configuration);
+
+var jwtKey = configuration["JwtSettings:Key"];
+
+if (string.IsNullOrEmpty(jwtKey))
+{
+    // Handle the case where the key is missing or empty
+    throw new ApplicationException("JWT Key is missing or empty in configuration.");
+}
+
+Console.WriteLine($"JWT Key from configuration: {jwtKey}");
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = configuration["JwtSettings:Issuer"],
+        ValidAudience = configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+});
+
+builder.Services.AddAuthorization();
 
 // Add services to the container.
 
@@ -26,6 +66,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

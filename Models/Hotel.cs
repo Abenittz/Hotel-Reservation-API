@@ -24,4 +24,5 @@ public class ReservationDBSettings
     public String? DatabaseName { get; set; } = null!;
     public String? HotelCollectionName { get; set; } = null!;
     public String? ReservationCollectionName { get; set; } = null!;
+   
 }
