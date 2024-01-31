@@ -70,70 +70,99 @@ public class ReservationServices
         
     }
 
-public async Task SendReservationNotificationAsync(RoomReservation reservation)
-{
-    try
+    public async Task SendReservationNotificationAsync(RoomReservation reservation)
     {
-        var emailSettings = _configuration.GetSection("EmailSettings").Get<EmailSettings>();
-
-        var subject = "New Reservation Created";
-        var body = $@"
-            <p>A new reservation has been created with the following details:</p>
-            <ul>
-                <li>Full Name: {reservation.FullName}</li>
-                <li>Check-in Date: {reservation.CheckInDate}</li>
-                <li>Check-out Date: {reservation.CheckOutDate}</li>
-                <li>Room Type: {reservation.RoomType}</li>
-                <li>Hotel Name: {reservation.HotelName}</li>
-                <li>Payment Type: {reservation.PaymentType}</li>
-                <li>Room Number: {reservation.RoomNumber}</li>
-            </ul>
-        ";
-
-        // Specify the full namespace for SmtpClient to avoid ambiguity
-        using (var client = new System.Net.Mail.SmtpClient(emailSettings.SmtpServer, emailSettings.SmtpPort))
+        try
         {
-            client.UseDefaultCredentials = false;
-            client.Credentials = new NetworkCredential(emailSettings.SmtpUsername, emailSettings.SmtpPassword);
-            client.EnableSsl = true;
+            var emailSettings = _configuration.GetSection("EmailSettings").Get<EmailSettings>();
 
-            var message = new MailMessage
+            var subject = "New Reservation Created";
+            var body = $@"
+                <p>A new reservation has been created with the following details:</p>
+                <ul>
+                    <li>Full Name: {reservation.FullName}</li>
+                    <li>Check-in Date: {reservation.CheckInDate}</li>
+                    <li>Check-out Date: {reservation.CheckOutDate}</li>
+                    <li>Room Type: {reservation.RoomType}</li>
+                    <li>Hotel Name: {reservation.HotelName}</li>
+                    <li>Payment Type: {reservation.PaymentType}</li>
+                    <li>Room Number: {reservation.RoomNumber}</li>
+                </ul>
+            ";
+
+            // Specify the full namespace for SmtpClient to avoid ambiguity
+            using (var client = new System.Net.Mail.SmtpClient(emailSettings.SmtpServer, emailSettings.SmtpPort))
             {
-                From = new MailAddress(emailSettings.SenderEmail, emailSettings.SenderName),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(emailSettings.SmtpUsername, emailSettings.SmtpPassword);
+                client.EnableSsl = true;
 
-            // Replace with the actual recipient's email address
-            message.To.Add(new MailAddress("recipient@example.com"));
+                var message = new MailMessage
+                {
+                    From = new MailAddress(emailSettings.SenderEmail, emailSettings.SenderName),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
 
-            await client.SendMailAsync(message);
+                // Replace with the actual recipient's email address
+                message.To.Add(new MailAddress("recipient@example.com"));
+
+                await client.SendMailAsync(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle email sending exceptions
+            Console.WriteLine($"Error sending email notification: {ex.Message}");
         }
     }
-    catch (Exception ex)
+
+
+
+
+    public async Task UpdateAsync(string id, UpdateReservation reservation)
     {
-        // Handle email sending exceptions
-        Console.WriteLine($"Error sending email notification: {ex.Message}");
+        var existingReservation = await _reservationCollections.Find(r => r.Id == id).FirstOrDefaultAsync();
+
+        if (existingReservation == null)
+        {
+            throw new InvalidDataException($"The reservation with Id {id} could not be found.");
+        }
+
+        if (reservation.FullName != null)
+        {
+            existingReservation.FullName = reservation.FullName;
+        }
+
+        if (reservation.CheckInDate.HasValue)
+        {
+            existingReservation.CheckInDate = reservation.CheckInDate.Value;
+        }
+
+        if (reservation.CheckOutDate.HasValue)
+        {
+            existingReservation.CheckOutDate = reservation.CheckOutDate.Value;
+        }
+
+        if (!string.IsNullOrEmpty(reservation.RoomType))
+        {
+            existingReservation.RoomType = reservation.RoomType;
+        }
+
+        if (!string.IsNullOrEmpty(reservation.HotelName))
+        {
+            existingReservation.HotelName = reservation.HotelName;
+        }
+
+        if (!string.IsNullOrEmpty(reservation.PaymentType))
+        {
+            existingReservation.PaymentType = reservation.PaymentType;
+        }
+
+        await _reservationCollections.ReplaceOneAsync(r => r.Id == id, existingReservation);
     }
-}
 
-
-
-
-    public async Task UpdateAsync(String id, RoomReservation reservation)
-    {
-        var Updated = await _reservationCollections.Find(r => r.Id == id).FirstOrDefaultAsync() ?? throw new InvalidDataException($"The reservation couldn't not be found");
-        Updated.FullName = reservation.FullName;
-        Updated.CheckInDate = reservation.CheckInDate;
-        Updated.CheckOutDate = reservation.CheckOutDate;
-        Updated.RoomType = reservation.RoomType;
-        Updated.HotelName = reservation.HotelName;
-        Updated.PaymentType = reservation.PaymentType;
-
-        await _reservationCollections.ReplaceOneAsync(r => r.Id == id, Updated);
-        return;
-    }
 
     public async Task CancelReservationAsync(String id)
     {
