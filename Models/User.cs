@@ -12,14 +12,15 @@ public class User
     [BsonElement("Id")]
     public string? Id { get; set; }
 
+    [BsonElement("Name")]
+    public required string FullName { get; set; }
+
     [BsonElement("Email")]
     public required string Email { get; set; }
 
     [BsonElement("Password")]
     public required string Password { get; set; }
 
-    [BsonElement("Name")]
-    public string? Name { get; set; }
 
     [BsonElement("IsEmailVerified")]
     public bool IsEmailVerified { get; set; }
