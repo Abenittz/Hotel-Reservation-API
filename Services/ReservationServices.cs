@@ -1,7 +1,13 @@
 using System.ComponentModel;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Principal;
+using System.Text;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using Org.BouncyCastle.Tls;
+using ReservationApi.DatabaseSettings;
 using ReservationApi.Models;
 
 
@@ -9,17 +15,15 @@ namespace ReservationApi.Services;
 
 public class ReservationServices
 {
-    private readonly IMongoCollection<Hotel> _hotelCollections;
+    private readonly IConfiguration _configuration;
     private readonly IMongoCollection<RoomReservation> _reservationCollections;
-    // private readonly IMongoCollection<Rooms> _roomCollections;
-    // private readonly IMongoCollection<RoomsType> _roomsTypeCollections;
 
 
-    public ReservationServices(IOptions<ReservationDBSettings> hotelDBSettings)
+    public ReservationServices(IOptions<ReservationDBSettings> hotelDBSettings, IConfiguration configuration)
     {
+         _configuration = configuration;
         MongoClient client = new MongoClient(hotelDBSettings.Value.ConnectionURI);
         IMongoDatabase database = client.GetDatabase(hotelDBSettings.Value.DatabaseName);
-        _hotelCollections = database.GetCollection<Hotel>(hotelDBSettings.Value.HotelCollectionName);
         _reservationCollections = database.GetCollection<RoomReservation>(hotelDBSettings.Value.ReservationCollectionName);
         
 
@@ -32,18 +36,38 @@ public class ReservationServices
 
     public async Task<RoomReservation> GetAsync(String id) 
     {
-        return await _reservationCollections.Find(r => r.Id == id).FirstOrDefaultAsync() ?? throw new InvalidDataException($"The reservation couldn't not be found");
+
+        return await _reservationCollections.Find(r => r.Id == id).FirstOrDefaultAsync() ?? throw new InvalidDataException($"The reservation couldn not be found");
+
          
+    }
+
+    public async Task<RoomReservation> GetByName(String fullname) 
+    {
+
+        return await _reservationCollections.Find(r => r.FullName == fullname).FirstOrDefaultAsync() ?? throw new InvalidDataException($"The reservation couldn't not be found");
+
+         
+    }
+
+    public async Task CreateAsync(RoomReservation reservation){
+
+        var room = await _reservationCollections.Find(r=> r.HotelName == reservation.HotelName && r.RoomNumber == reservation.RoomNumber).FirstOrDefaultAsync();
+        if(room == null){
+            await _reservationCollections.InsertOneAsync(reservation);
+            return;
+        }else{
+            throw new InvalidDataException($"Room already reserved");
+        }
         
     }
-    public async Task CreateAsync(RoomReservation reservation){
-        await _reservationCollections.InsertOneAsync(reservation);
-        return;
-    }
+
+
+
     public async Task UpdateAsync(String id, RoomReservation reservation)
     {
         var Updated = await _reservationCollections.Find(r => r.Id == id).FirstOrDefaultAsync() ?? throw new InvalidDataException($"The reservation couldn't not be found");
-        Updated.GuestName = reservation.GuestName;
+        Updated.FullName = reservation.FullName;
         Updated.CheckInDate = reservation.CheckInDate;
         Updated.CheckOutDate = reservation.CheckOutDate;
 
@@ -67,6 +91,45 @@ public class ReservationServices
         
     }
 
+
+
+
+
+
+    // Token validator method
+    public bool ValidateToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jwtKey = _configuration["JwtSettings:Key"];
+
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            throw new ApplicationException("JWT Key is missing or empty in configuration.");
+        }
+
+        var tokenKey = Encoding.ASCII.GetBytes(jwtKey);
+
+        try
+        {
+            // Decode the JWT token without validation
+            var claimsPrincipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = false, // disable signature validation
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false
+            }, out _);
+
+            return true;
+        }
+        catch (SecurityTokenException)
+        {
+            return false;
+        }
+    }
+
+
     
 }
+
 

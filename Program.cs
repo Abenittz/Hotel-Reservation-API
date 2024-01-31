@@ -1,21 +1,28 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using ReservationApi.Models;
 using ReservationApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using ReservationApi.DatabaseSettings;
+using MailKit;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<ReservationDBSettings>(builder.Configuration.GetSection("MongoDB"));
-builder.Services.AddSingleton<ReservationServices>();
-builder.Services.AddSingleton<HotelServices>();
 
 
+
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+// builder.Services.AddMongo(builder.Configuration);
+// builder.Services.AddMongoService<User>("users");
 var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .Build();
 
-builder.Configuration.AddConfiguration(configuration);
+builder.Services.Configure<ReservationDBSettings>(builder.Configuration.GetSection("MongoDB"));
+builder.Services.AddSingleton<ReservationServices>();
+builder.Services.AddScoped<UserServices>();
 
 var jwtKey = configuration["JwtSettings:Key"];
 
@@ -47,6 +54,7 @@ builder.Services.AddAuthentication(x =>
 });
 
 builder.Services.AddAuthorization();
+
 
 // Add services to the container.
 

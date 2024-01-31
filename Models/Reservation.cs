@@ -9,36 +9,30 @@ public class RoomReservation
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     [BsonElement("Id")]
-    
     public String? Id { get; set; }
 
-    // [BsonRepresentation(BsonType.String)] // Use BsonType.String representation for Guid
-    // public Guid RoomId { get; set; }
-
-    // [BsonRepresentation(BsonType.String)] // Use BsonType.String representation for Guid
-    // public Guid HotelId { get; set; }
-
-    // [BsonRequired]
-    // public required string HotelName { get; set; }
-
-    // public int RoomNumber { get; set; }
-
-    // [BsonRepresentation(BsonType.String)] // Use BsonType.String representation for Guid
-    // public Guid UserId { get; set; }
-
-    // [BsonRequired]
-    // public required string Type { get; set; }
-
-    // [BsonRepresentation(BsonType.String)] // Use BsonType.String representation for Guid
-    // public Guid RoomTypeId { get; set; }
+    [BsonRequired]
+    [BsonElement("FullName")]
+    public required string FullName { get; set; }
 
     [BsonRequired]
-    public required string GuestName { get; set; }
-
-    [BsonRequired]
+    [BsonElement("CheckInDate")]
     public DateTime CheckInDate { get; set; }
 
     [BsonRequired]
+    [BsonElement("CheckOutDate")]
     public DateTime CheckOutDate { get; set; }
+    [BsonElement("RoomType")]
+    public required String RoomType { get; set; }
+
+    [BsonElement("HotelName")]
+    public required String HotelName { get; set; }
+
+    [BsonElement("PaymentType")]
+    public required String PaymentType { get; set; }
+    
+    [BsonElement("RooNumber")]
+    public int RoomNumber { get; set; }
+
 }
 
