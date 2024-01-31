@@ -31,7 +31,35 @@ Welcome to the Hotel Reservation Web API built with ASP.NET 7.0 and MongoDB. Thi
 
 2. **Setup MongoDB:** Ensure that you have MongoDB installed and configured. Update the `appsettings.json` file with your MongoDB connection details.
 
-3. **Configure Email Settings:** Update the `appsettings.json` file with your SMTP server details for email notification functionality.
+3. **Configure Email Settings:**
+
+   To enable email notification functionality, you need to set up an SMTP server. Follow these steps to configure the email settings:
+
+   - **Step 1: Create Ethereal Email Account**
+     Visit [ethereal.email](https://ethereal.email/) and create a free account. Ethereal Email provides a fake SMTP server for testing purposes.
+
+   - **Step 2: Generate SMTP Server Credentials**
+     After creating your Ethereal Email account, navigate to the dashboard and create a new server. Take note of the generated SMTP server details, including the username and password.
+
+   - **Step 3: Update `appsettings.json`**
+     Open the `appsettings.json` file in the project and locate the "EmailSettings" section. Update the following fields with the SMTP server details from Ethereal Email:
+     ```json
+     "EmailSettings": {
+       "SmtpServer": "smtp.ethereal.email",
+       "Port": 587, 
+       "Username": "your_ethereal_email_username", // paste the username from smtp 
+       "Password": "your_ethereal_email_password", // paste the password from smtp
+       "SenderEmail": "example@gmail.com",
+       "SenderName": "the hotel name"
+     }
+     ```
+
+   - **Step 4: Save Changes**
+     Save the changes to the `appsettings.json` file.
+
+   - **Step 5: Build and Run the Application**
+     Now that the email settings are configured, build and run the application. The system will use the provided SMTP server details to send email notifications for events such as registration and reservation creation.
+
 
 4. **Build and Run the Application:** Open the solution in your preferred IDE (Visual Studio, VS Code) and build/run the project.
 
