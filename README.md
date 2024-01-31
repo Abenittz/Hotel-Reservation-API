@@ -153,47 +153,47 @@ Welcome to the Hotel Reservation Web API built with ASP.NET 7.0 and MongoDB. Thi
 
 ## Hotel
 
-- **GET /hotel**
+- **GET /Hotel**
   - *Description:* Retrieve a list of all hotels.
 
-- **GET /hotel/get-reservation/{id}**
+- **GET /Hotel/get-reservation/{id}**
   - *Description:* Retrieve reservation details for a specific hotel by ID.
 
-- **GET /hotel/get-by-name/{fullname}**
+- **GET /Hotel/get-by-name/{fullname}**
   - *Description:* Search for a hotel by full name.
 
-- **POST /hotel**
+- **POST /Hotel**
   - *Description:* Create a new hotel entry.
 
-- **PUT /hotel**
+- **PUT /Hotel**
   - *Description:* Update an existing hotel entry.
 
-- **DELETE /hotel**
+- **DELETE /Hotel**
   - *Description:* Delete a hotel entry.
 
 ## Authentication
 
-- **POST /login/authenticate**
+- **POST /Login/authenticate**
   - *Description:* Authenticate a user. Returns a JWT token upon successful authentication.
 
-- **POST /login/logout**
+- **POST /Login/logout**
   - *Description:* Log out the authenticated user.
 
 ## User
 
-- **GET /user**
+- **GET /User**
   - *Description:* Retrieve a list of all users.
 
-- **GET /user/{id}**
+- **GET /User/{id}**
   - *Description:* Retrieve user details by ID.
 
-- **POST /user/register**
+- **POST /User/register**
   - *Description:* Register a new user. Requires user details in the request body.
 
-- **POST /user/verify-email**
+- **POST /User/verify-email**
   - *Description:* Verify the user's email address using the provided verification token.
 
-- **POST /user/change-password**
+- **POST /User/change-password**
   - *Description:* Change the user's password. Requires the current and new passwords.
 
 # How to Use Endpoints
@@ -216,12 +216,12 @@ Welcome to the Hotel Reservation Web API built with ASP.NET 7.0 and MongoDB. Thi
 
 # Examples
 
-# Get Hotel List
+### Get Hotel List
 
 ```http
 GET /hotel
 ```
-# Create a New Hotel
+### Create a New Hotel
 ```http
 POST /hotel
 ```
@@ -237,7 +237,7 @@ Request Body:
       "paymentType": "string"
     }
 ```
-# Authenticate User
+### Authenticate User
 ```http
 POST /login/authenticate
 ```
@@ -248,7 +248,7 @@ Request Body:
       "password": "password123"
     }
 ```
-# Register New USer
+### Register New USer
 ```http
 POST /user/register
 ```
