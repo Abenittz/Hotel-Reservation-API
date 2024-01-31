@@ -37,12 +37,25 @@ public class HotelController : ControllerBase
         return await _reservationServices.GetByName(firstname);
     }
 
-    [HttpPost]
+   [HttpPost]
     public async Task<IActionResult> Post([FromBody] RoomReservation reservation)
     {
+        try
+        {
+            await _reservationServices.CreateAsync(reservation);
+            
+            await _reservationServices.SendReservationNotificationAsync(reservation);
 
-       await _reservationServices.CreateAsync(reservation);
-        return CreatedAtAction(nameof(GetReservations), new {id = reservation.Id}, reservation);
+            return CreatedAtAction(nameof(GetReservations), new { id = reservation.Id }, reservation);
+        }
+        catch (InvalidDataException ex)
+        {
+            return BadRequest(new { Message = ex.Message });
+        }
+        catch (Exception)
+        {
+            return BadRequest(new { Message = "Failed to create reservation" });
+        }
     }
 
     [HttpPut]

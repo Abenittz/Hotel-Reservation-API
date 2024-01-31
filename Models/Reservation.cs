@@ -15,6 +15,13 @@ public class RoomReservation
     [BsonElement("FullName")]
     public required string FullName { get; set; }
 
+    [BsonElement("RoomType")]
+    public required String RoomType { get; set; }
+
+    [BsonElement("HotelName")]
+    public required String HotelName { get; set; }
+    [BsonElement("RooNumber")]
+    public int RoomNumber { get; set; }
     [BsonRequired]
     [BsonElement("CheckInDate")]
     public DateTime CheckInDate { get; set; }
@@ -22,17 +29,10 @@ public class RoomReservation
     [BsonRequired]
     [BsonElement("CheckOutDate")]
     public DateTime CheckOutDate { get; set; }
-    [BsonElement("RoomType")]
-    public required String RoomType { get; set; }
-
-    [BsonElement("HotelName")]
-    public required String HotelName { get; set; }
 
     [BsonElement("PaymentType")]
     public required String PaymentType { get; set; }
     
-    [BsonElement("RooNumber")]
-    public int RoomNumber { get; set; }
 
 }
 
