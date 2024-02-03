@@ -4,24 +4,21 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ReservationApi.Models;
 
-public class RoomReservation 
+public class RoomReservation
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     [BsonElement("Id")]
-    public String? Id { get; set; }
+    public string? Id { get; set; }
 
     [BsonRequired]
     [BsonElement("FullName")]
     public required string FullName { get; set; }
 
-    [BsonElement("RoomType")]
-    public required String RoomType { get; set; }
+    [BsonRequired]
+    [BsonElement("RoomId")]
+    public required string RoomId { get; set; } // Foreign key to Room
 
-    [BsonElement("HotelName")]
-    public required String HotelName { get; set; }
-    [BsonElement("RooNumber")]
-    public int RoomNumber { get; set; }
     [BsonRequired]
     [BsonElement("CheckInDate")]
     public DateTime CheckInDate { get; set; }
@@ -30,9 +27,9 @@ public class RoomReservation
     [BsonElement("CheckOutDate")]
     public DateTime CheckOutDate { get; set; }
 
+    [BsonRequired]
     [BsonElement("PaymentType")]
-    public required String PaymentType { get; set; }
-    
+    public required string PaymentType { get; set; }
 
 }
 

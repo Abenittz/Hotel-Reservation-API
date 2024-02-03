@@ -31,14 +31,20 @@ public class HotelController : ControllerBase
         return await _reservationServices.GetAsync(id);
     }
 
-    [HttpGet("get-by-name/{firstname}")]
-    public async Task<RoomReservation> GetByName(String firstname)
+    [HttpGet("get-by-name/{fullname}")]
+    public async Task<RoomReservation> GetByName(String fullname)
     {
-        return await _reservationServices.GetByName(firstname);
+        return await _reservationServices.GetByName(fullname);
+    }
+
+    [HttpGet("get-available-rooms")]
+    public async Task<List<Room>> GetAvailableRooms(){
+        return await _reservationServices.GetAvailableAsync();
+       
     }
 
    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] RoomReservation reservation)
+    public async Task<IActionResult> CreateReservation([FromBody] RoomReservation reservation)
     {
         try
         {
@@ -59,7 +65,7 @@ public class HotelController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> Update([FromBody] RoomReservation reservation, String id)
+    public async Task<IActionResult> Update([FromBody] UpdateReservation reservation, String id)
     {
          await _reservationServices.UpdateAsync(id, reservation);     
         return NoContent();

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Mail;
 using System.Net;
 using System.Web;
+using Microsoft.OpenApi.Extensions;
 
 
 namespace ReservationApi.Services;
@@ -41,7 +42,7 @@ public class UserServices
     public async Task<User> Create(User user)
     {
         user.IsEmailVerified = false;
-        user.EmailVerificationToken = GenerateToken(user.Email);
+        user.EmailVerificationToken = GenerateToken(user.Email, user.FullName);
 
         // Hash the password before storing it
         user.Password = HashPassword(user.Password);
@@ -62,11 +63,6 @@ public class UserServices
 
 
 
-
-
-
-
-
     public string Authenticate(string email, string password)
     {
         // find the user by email
@@ -78,7 +74,7 @@ public class UserServices
             return null;
         }
 
-        var token = GenerateToken(email.ToString());
+        var token = GenerateToken(email.ToString(), user.FullName.ToString());
         return token;
     }
 
@@ -106,7 +102,7 @@ public class UserServices
 
 
     // token generator based on email
-    public string GenerateToken(string email)
+    public string GenerateToken(string email, string fullname)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -123,6 +119,7 @@ public class UserServices
         {
             Subject = new ClaimsIdentity(new Claim[]{
                 new(ClaimTypes.Email, email),
+                new(ClaimTypes.Name, fullname)
             }),
             Expires = DateTime.UtcNow.AddHours(1),
             SigningCredentials = new SigningCredentials(
