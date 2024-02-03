@@ -25,6 +25,9 @@ public class ReservationServices
     
     private readonly IConfiguration _configuration;
     private readonly IMongoCollection<RoomReservation> _reservationCollections;
+    private readonly IMongoCollection<Hotel> _hotelCollections;
+    private readonly IMongoCollection<Room> _roomCollections;
+    private readonly IMongoCollection<RoomType> _roomTypeCollections;
 
 
     public ReservationServices(IOptions<ReservationDBSettings> hotelDBSettings, IConfiguration configuration)
@@ -33,6 +36,9 @@ public class ReservationServices
         MongoClient client = new MongoClient(hotelDBSettings.Value.ConnectionURI);
         IMongoDatabase database = client.GetDatabase(hotelDBSettings.Value.DatabaseName);
         _reservationCollections = database.GetCollection<RoomReservation>(hotelDBSettings.Value.ReservationCollectionName);
+        _hotelCollections = database.GetCollection<Hotel>(hotelDBSettings.Value.HotelCollectionName);
+        _roomCollections = database.GetCollection<Room>(hotelDBSettings.Value.RoomCollectionName);
+        _roomTypeCollections = database.GetCollection<RoomType>(hotelDBSettings.Value.RoomTypeCollectionName);
         
 
     }
@@ -58,10 +64,24 @@ public class ReservationServices
         
     }
 
+    public async Task<List<Room>> GetAvailableAsync()
+    {
+        var available = await _roomCollections.Find(r => !r.IsReserved).ToListAsync();
+
+        if(available.Count == 0){
+            return null;
+        }
+
+        return available;
+    }
+
     public async Task CreateAsync(RoomReservation reservation){
 
-        var room = await _reservationCollections.Find(r=> r.HotelName == reservation.HotelName && r.RoomNumber == reservation.RoomNumber).FirstOrDefaultAsync();
-        if(room == null){
+        var room = await _roomCollections.Find(r=> r.Id == reservation.RoomId && !r.IsReserved).FirstOrDefaultAsync();
+        if(room != null){
+            room.IsReserved = true;
+            await _roomCollections.ReplaceOneAsync(r => r.Id == reservation.RoomId, room);
+
             await _reservationCollections.InsertOneAsync(reservation);
             return;
         }else{
@@ -83,10 +103,7 @@ public class ReservationServices
                     <li>Full Name: {reservation.FullName}</li>
                     <li>Check-in Date: {reservation.CheckInDate}</li>
                     <li>Check-out Date: {reservation.CheckOutDate}</li>
-                    <li>Room Type: {reservation.RoomType}</li>
-                    <li>Hotel Name: {reservation.HotelName}</li>
                     <li>Payment Type: {reservation.PaymentType}</li>
-                    <li>Room Number: {reservation.RoomNumber}</li>
                 </ul>
             ";
 
@@ -145,16 +162,6 @@ public class ReservationServices
             existingReservation.CheckOutDate = reservation.CheckOutDate.Value;
         }
 
-        if (!string.IsNullOrEmpty(reservation.RoomType))
-        {
-            existingReservation.RoomType = reservation.RoomType;
-        }
-
-        if (!string.IsNullOrEmpty(reservation.HotelName))
-        {
-            existingReservation.HotelName = reservation.HotelName;
-        }
-
         if (!string.IsNullOrEmpty(reservation.PaymentType))
         {
             existingReservation.PaymentType = reservation.PaymentType;
@@ -170,8 +177,17 @@ public class ReservationServices
         var removedreservation = await _reservationCollections.Find(r => r.Id == id).FirstOrDefaultAsync();
 
         if(removedreservation != null){
-            await _reservationCollections.DeleteOneAsync(x => x.Id == id);
+            await _reservationCollections.DeleteOneAsync(r => r.Id == id);
+
+
+            var room = await _roomCollections.Find(r => r.Id == removedreservation.RoomId).FirstOrDefaultAsync();
+            if(room != null){
+                room.IsReserved = false;
+                await _roomCollections.ReplaceOneAsync(r => r.Id == removedreservation.RoomId, room);
+                
+            }
             return;
+
         }else{
 
             throw new InvalidDataException($"the reservation couldnt be found");

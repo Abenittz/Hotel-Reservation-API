@@ -37,8 +37,14 @@ public class HotelController : ControllerBase
         return await _reservationServices.GetByName(fullname);
     }
 
+    [HttpGet("get-available-rooms")]
+    public async Task<List<Room>> GetAvailableRooms(){
+        return await _reservationServices.GetAvailableAsync();
+       
+    }
+
    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] RoomReservation reservation)
+    public async Task<IActionResult> CreateReservation([FromBody] RoomReservation reservation)
     {
         try
         {

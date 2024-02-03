@@ -63,11 +63,6 @@ public class UserServices
 
 
 
-
-
-
-
-
     public string Authenticate(string email, string password)
     {
         // find the user by email

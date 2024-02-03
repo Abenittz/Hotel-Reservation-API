@@ -34,8 +34,6 @@ public class LoginController : ControllerBase
         return Ok(new { token, user });
 
 
-
-
     }
     
     [AllowAnonymous]
