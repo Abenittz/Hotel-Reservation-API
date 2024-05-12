@@ -12,7 +12,7 @@ public class User
     [BsonElement("Id")]
     public string? Id { get; set; }
 
-    [BsonElement("Name")]
+    [BsonElement("FullName")]
     public required string FullName { get; set; }
 
     [BsonElement("Email")]

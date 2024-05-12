@@ -69,7 +69,7 @@ public class UserServices
         var user = _userCollections.Find(x => x.Email == email && x.IsEmailVerified).FirstOrDefault();
         
 
-        if (user == null || !VerifyPassword(password, user.Password))
+        if (user == null || !VerifyPassword(password, user.Password) || user.IsEmailVerified)
         {
             return null;
         }
