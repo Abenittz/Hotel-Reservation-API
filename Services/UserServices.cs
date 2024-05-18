@@ -39,10 +39,10 @@ public class UserServices
     public async Task<User> GetUSerByEmail(String email) => await _userCollections.Find<User>(r => r.Email == email).FirstOrDefaultAsync();
 
   
-    public async Task<User> Create(User user)
+    public async Task<UserResponse> Create(User user)
     {
         user.IsEmailVerified = false;
-        user.EmailVerificationToken = GenerateToken(user.Email, user.FullName);
+        var token = GenerateToken(user.Email, user.FullName);
 
         // Hash the password before storing it
         user.Password = HashPassword(user.Password);
@@ -50,12 +50,14 @@ public class UserServices
         await _userCollections.InsertOneAsync(user);
 
         // Send email with verification link
-        await SendEmailVerificationEmail(user.Email, user.EmailVerificationToken);
+        // await SendEmailVerificationEmail(user.Email, user.EmailVerificationToken);
+        await SendEmailVerificationEmail(user.Email, token);
 
-        return user;
+       var response = new UserResponse(user, token);
+       return response;
     }
 
-   // hasing the password before decrypting it 
+   // hashing the password before decrypting it 
     private string HashPassword(string password)
     {
         return BCrypt.Net.BCrypt.HashPassword(password);
@@ -66,8 +68,8 @@ public class UserServices
     public string Authenticate(string email, string password)
     {
         // find the user by email
-        var user = _userCollections.Find(x => x.Email == email && x.IsEmailVerified).FirstOrDefault();
-        
+        var user = _userCollections.Find(x => x.Email == email).FirstOrDefault();
+        Console.WriteLine(user);
 
         if (user == null || !VerifyPassword(password, user.Password) || user.IsEmailVerified)
         {
@@ -78,7 +80,7 @@ public class UserServices
         return token;
     }
 
-     public void RevokeToken(string email)
+    public void RevokeToken(string email)
     {
         // Add the user's token to the blacklist
         var userToken = _tokenBlacklist.FirstOrDefault(t => t.Contains(email));
@@ -224,4 +226,17 @@ public class UserServices
         return true;
     }
 
+}
+
+
+public class UserResponse
+{
+    public User User { get; set; }
+    public string Token { get; set; }
+
+    public UserResponse(User user, string token)
+    {
+        User = user;
+        Token = token;
+    }
 }

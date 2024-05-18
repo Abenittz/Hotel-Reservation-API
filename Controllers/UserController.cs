@@ -38,9 +38,14 @@ public class UserController : ControllerBase
         Console.WriteLine(exists);
         if (exists == null){
 
-            var createdUser = await userServices.Create(user);
+            var createdUserResponse = await userServices.Create(user);
 
-            return Ok(new { Message = "User registered successfully. Please check your email for verification." });
+            return Ok(new
+        {
+            Message = "User registered successfully. Please check your email for verification.",
+            User = createdUserResponse.User,
+            Token = createdUserResponse.Token
+        });
         }
         return BadRequest("The user already exists");
     }

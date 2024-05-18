@@ -51,7 +51,7 @@ public class ReservationServices
     public async Task<RoomReservation> GetAsync(String id) 
     {
 
-        return await _reservationCollections.Find(r => r.Id == id).FirstOrDefaultAsync() ?? throw new InvalidDataException($"The reservation couldn not be found");
+        return await _reservationCollections.Find(r => r.Id == id).FirstOrDefaultAsync() ?? throw new InvalidDataException($"The reservation couldn't not be found");
 
         
     }
