@@ -30,15 +30,15 @@ public class ReservationServices
     private readonly IMongoCollection<RoomType> _roomTypeCollections;
 
 
-    public ReservationServices(IOptions<ReservationDBSettings> hotelDBSettings, IConfiguration configuration)
+    public ReservationServices(IOptions<ReservationDBSettings> reservationDBSetting, IConfiguration configuration)
     {
         _configuration = configuration;
-        MongoClient client = new MongoClient(hotelDBSettings.Value.ConnectionURI);
-        IMongoDatabase database = client.GetDatabase(hotelDBSettings.Value.DatabaseName);
-        _reservationCollections = database.GetCollection<RoomReservation>(hotelDBSettings.Value.ReservationCollectionName);
-        _hotelCollections = database.GetCollection<Hotel>(hotelDBSettings.Value.HotelCollectionName);
-        _roomCollections = database.GetCollection<Room>(hotelDBSettings.Value.RoomCollectionName);
-        _roomTypeCollections = database.GetCollection<RoomType>(hotelDBSettings.Value.RoomTypeCollectionName);
+        MongoClient client = new MongoClient(reservationDBSetting.Value.ConnectionURI);
+        IMongoDatabase database = client.GetDatabase(reservationDBSetting.Value.DatabaseName);
+        _reservationCollections = database.GetCollection<RoomReservation>(reservationDBSetting.Value.ReservationCollectionName);
+        _hotelCollections = database.GetCollection<Hotel>(reservationDBSetting.Value.HotelCollectionName);
+        _roomCollections = database.GetCollection<Room>(reservationDBSetting.Value.RoomCollectionName);
+        _roomTypeCollections = database.GetCollection<RoomType>(reservationDBSetting.Value.RoomTypeCollectionName);
         
 
     }

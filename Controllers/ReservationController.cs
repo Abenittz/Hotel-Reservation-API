@@ -10,11 +10,11 @@ namespace ReservationApi.controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class HotelController : ControllerBase
+public class ReservationController : ControllerBase
 {
     private readonly ReservationServices _reservationServices;
 
-    public HotelController(ReservationServices reservationServices)
+    public ReservationController(ReservationServices reservationServices)
     {
         _reservationServices = reservationServices;
     }
