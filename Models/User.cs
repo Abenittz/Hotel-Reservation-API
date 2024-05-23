@@ -25,7 +25,6 @@ public class User
     [BsonElement("IsEmailVerified")]
     public bool IsEmailVerified { get; set; }
 
-    [BsonElement("EmailVerificationToken")]
-    public string? EmailVerificationToken { get; set; }
+
  
 }

@@ -19,22 +19,19 @@ public class LoginController : ControllerBase
     }
 
     [AllowAnonymous]
-    [Route("authenticate")]
-    [HttpPost]
-    public ActionResult Login([FromBody] LoginRequest user)
+[Route("authenticate")]
+[HttpPost]
+public ActionResult Login([FromBody] LoginRequest loginRequest)
+{
+    var response = loginservices.Authenticate(loginRequest.Email, loginRequest.Password);
+
+    if (response == null)
     {
-
-        var token = loginservices.Authenticate(user.Email, user.Password);
-
-        if (token == null)
-        {
-            return Unauthorized();
-        }
-
-        return Ok(new { token, user });
-
-
+        return Unauthorized();
     }
+
+    return Ok(response);
+}
     
     [AllowAnonymous]
     [Route("logout")]

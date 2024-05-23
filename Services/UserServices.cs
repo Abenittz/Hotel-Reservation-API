@@ -64,21 +64,43 @@ public class UserServices
     }
 
 
+public class LoginResponse
+{
+    public string Token { get; set; }
+    public string Email { get; set; }
+    public string FullName { get; set; }
+    public bool IsEmailVerified { get; set; }
+    // Add other user properties as needed
 
-    public string Authenticate(string email, string password)
+    public LoginResponse(User user, string token)
     {
-        // find the user by email
-        var user = _userCollections.Find(x => x.Email == email).FirstOrDefault();
-        Console.WriteLine(user);
-
-        if (user == null || !VerifyPassword(password, user.Password) || user.IsEmailVerified)
-        {
-            return null;
-        }
-
-        var token = GenerateToken(email.ToString(), user.FullName.ToString());
-        return token;
+        Token = token;
+        Email = user.Email;
+        FullName = user.FullName;
+        IsEmailVerified = user.IsEmailVerified;
+      
     }
+}
+
+
+
+public LoginResponse Authenticate(string email, string password)
+{
+    // Find the user by email
+    var user = _userCollections.Find(x => x.Email == email).FirstOrDefault();
+
+    if (user == null || !VerifyPassword(password, user.Password))
+    {
+        return null;
+    }
+
+    var token = GenerateToken(user.Email, user.FullName);
+
+    // Create the response object with user data and token
+    var response = new LoginResponse(user, token);
+
+    return response;
+}
 
     public void RevokeToken(string email)
     {
@@ -183,14 +205,13 @@ public class UserServices
 
     public async Task<bool> VerifyEmailAsync(string email, string token)
     {
-        var user = await _userCollections.Find(x => x.Email == email && x.EmailVerificationToken == token).FirstOrDefaultAsync();
+        var user = await _userCollections.Find(x => x.Email == email).FirstOrDefaultAsync();
 
         if (user != null)
         {
             // Mark email as verified
             user.IsEmailVerified = true;
-            user.EmailVerificationToken = null;
-
+            
             // Save the updated user document
             await _userCollections.ReplaceOneAsync(x => x.Id == user.Id, user);
 
